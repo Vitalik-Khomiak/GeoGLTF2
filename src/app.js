@@ -14,7 +14,6 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const canvas = document.querySelector("#sceneCanvas");
 const fileInput = document.querySelector("#modelInput");
-const resetViewButton = document.querySelector("#resetViewButton");
 const mathModeToggle = document.querySelector("#mathModeToggle");
 const gridToggle = document.querySelector("#gridToggle");
 const axesToggle = document.querySelector("#axesToggle");
@@ -48,6 +47,8 @@ const loader = new GLTFLoader();
 const thumbnailLoader = new GLTFLoader();
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
+// Перевикористовується в applyFullViewport, який виконується щокадру.
+const rendererSize = new THREE.Vector2();
 const animationClock = new THREE.Clock();
 const mathStyle = {
   faceColor: new THREE.Color(0xc58f66),
@@ -382,7 +383,6 @@ function bindEvents() {
   }
 
   fileInput.addEventListener("change", onFileInputChange);
-  resetViewButton.addEventListener("click", frameCurrentModel);
   viewerResetButton.addEventListener("click", frameCurrentModel);
   quickResetButton.addEventListener("click", frameCurrentModel);
   unfoldModeToggle.addEventListener("change", () => {
@@ -432,7 +432,6 @@ function bindEvents() {
     }
   });
 
-  renderer.domElement.addEventListener("pointermove", onPointerMove);
   syncRenderModeControls();
   restoreSceneHintState();
   updateUnfoldUiState();
@@ -1342,6 +1341,12 @@ function disposeUnfoldController() {
 
 /**
  * Визначає, для яких навчальних фігур доступний режим розгортки.
+ *
+ * ДРУГЕ МІСЦЕ, ДЕ МОДЕЛЬ ВПІЗНАЮТЬ ЗА НАЗВОЮ, — масив `MODEL_QUESTIONS`
+ * (навчальне запитання в картці). Обидві таблиці порядко-залежні й обидві
+ * перелічують ті самі родини фігур. Нова модель у бібліотеці потребує запису
+ * в ОБИДВІ — інакше вона або лишиться без запитання, або підхопить чуже.
+ * Тут є регресійний тест (`tools/test-unfold.mjs`), у `MODEL_QUESTIONS` — ні.
  */
 function getSupportedUnfoldType(asset) {
   const source = [
@@ -2724,16 +2729,6 @@ function handleLoadError(file, error) {
 }
 
 /**
- * Готує координати вказівника; за потреби тут легко додати інструмент вимірювань.
- */
-function onPointerMove(event) {
-  const bounds = renderer.domElement.getBoundingClientRect();
-  pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
-  pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
-  raycaster.setFromCamera(pointer, camera);
-}
-
-/**
  * Постійно оновлює контролер і рендерить сцену.
  */
 function animate() {
@@ -2762,8 +2757,8 @@ function animate() {
  * тому баг був видимий тільки на мобільних.
  */
 function applyFullViewport() {
-  const size = renderer.getSize(new THREE.Vector2());
-  renderer.setViewport(0, 0, size.x, size.y);
+  renderer.getSize(rendererSize);
+  renderer.setViewport(0, 0, rendererSize.x, rendererSize.y);
 }
 
 /**
@@ -2914,8 +2909,14 @@ async function shareCurrentModel() {
 
 // Порядок має значення: береться ПЕРШИЙ збіг, тому вужчі записи стоять вище.
 // Інакше «Два подібні конуси» дістали б загальне запитання про переріз конуса.
+//
+// ДРУГЕ МІСЦЕ, ДЕ МОДЕЛЬ ВПІЗНАЮТЬ ЗА НАЗВОЮ, — `getSupportedUnfoldType()`
+// (тип розгортки). Обидві таблиці перелічують ті самі родини фігур і обидві
+// порядко-залежні. Нову модель треба дописати в ОБИДВІ. Різниця, про яку варто
+// знати: там зіставляють ще й `file.name` (для файлів, доданих учнем вручну),
+// тут — лише назву каталогу й шлях.
 const MODEL_QUESTIONS = [
-  { keys: ["зріз", "slice", "переріз"], text: "Яка форма перерізу? Скільки граней перетинає площина?" },
+  { keys: ["зріз", "slice"], text: "Яка форма перерізу? Скільки граней перетинає площина?" },
   { keys: ["_pair", "два цилінд"], text: "Основи однакові, висоти різні. Що в перерізах зміниться, а що ні?" },
   { keys: ["_similar", "подібні конус"], text: "Усі розміри більші вдвічі. У скільки разів більші площа поверхні та об'єм?" },
   { keys: ["паралелепіпед", "parallelepiped"], text: "Чим паралелепіпед відрізняється від куба? Чи рівні між собою його діагоналі?" },
@@ -3230,8 +3231,15 @@ function collectSectionSegments(plane) {
  * buildSectionVisual, і check-sections.mjs міг би тільки повторити формулу
  * вручну, а не викликати справжню.
  */
+// Наскільки мізерною має бути площа, щоб вважати результат числовим шумом.
+// Той самий поріг служить двом різним порівнянням: тут — площа проти розміру
+// тіла, у buildSectionFillGeometry — площа контуру проти найбільшого контуру
+// того самого перерізу. Підкручувати за результатами апробації треба обидва
+// разом, тому константа спільна.
+const DEGENERATE_AREA_RATIO = 1e-6;
+
 function needsSectionRetry(fillInfo, radius) {
-  return !fillInfo || fillInfo.area < radius * radius * 1e-6;
+  return !fillInfo || fillInfo.area < radius * radius * DEGENERATE_AREA_RATIO;
 }
 
 /**
@@ -3577,9 +3585,8 @@ function describeSectionPolygon(vertexCount) {
  * такого контуру практично нульова при ненульовому периметрі: без фільтра
  * учень побачив би беззмістовний «S ≈ 0,00» і мав би підстави вважати, що
  * застосунок зламаний. Поріг береться відносно найбільшого контуру цього ж
- * результату, а не абсолютно від розміру тіла — сигнатура функції фіксована
- * (тест check-sections.mjs вирізає її з app.js за іменем), тож радіуса тут
- * немає. Запас не менше 5 порядків з кожного боку: реальний рубець виходить
+ * результату, а не від розміру тіла: тут важливо відрізнити
+ * рубець від сусіднього справжнього контура, а не від тіла взагалі. Запас не менше 5 порядків з кожного боку: реальний рубець виходить
  * 1.4e-17 відносної площі, а найменший відомий справжній малий контур
  * (менший з пари подібних конусів, cones_similar) — близько 17%.
  */
@@ -3603,7 +3610,7 @@ function buildSectionFillGeometry(loops, normal) {
     measuredLoops.push({ points, measured: measureSectionLoop(points, normal) });
   }
 
-  const DEGENERATE_LOOP_AREA_RATIO = 1e-6;
+  const DEGENERATE_LOOP_AREA_RATIO = DEGENERATE_AREA_RATIO;
   const maxLoopArea = measuredLoops.reduce((max, l) => Math.max(max, l.measured.area), 0);
   const survivors = measuredLoops.filter((l) => l.measured.area > maxLoopArea * DEGENERATE_LOOP_AREA_RATIO);
 

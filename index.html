@@ -107,7 +107,6 @@
             <span>.glb</span>
           </label>
           <input id="modelInput" type="file" accept=".glb,model/gltf-binary" multiple hidden />
-          <button id="resetViewButton" type="button" hidden aria-hidden="true"></button>
         </header>
 
         <div class="lib-scroll">
@@ -119,7 +118,7 @@
             <div id="publishedLibrary" class="asset-grid"></div>
           </section>
 
-          <section class="lib-section" id="sessionSection">
+          <section class="lib-section">
             <div class="lib-head"><h2>Мої файли</h2></div>
             <div id="sessionLibrary" class="asset-grid"></div>
           </section>
@@ -247,9 +246,9 @@
 
           <div class="dock-row dock-section is-hidden" id="sectionControls">
             <div class="section-axes" role="group" aria-label="Площина перерізу">
-              <button id="sectionAxisX" class="chip chip-axis" type="button" data-axis="x">X</button>
-              <button id="sectionAxisY" class="chip chip-axis is-active" type="button" data-axis="y">Y</button>
-              <button id="sectionAxisZ" class="chip chip-axis" type="button" data-axis="z">Z</button>
+              <button class="chip chip-axis" type="button" data-axis="x">X</button>
+              <button class="chip chip-axis is-active" type="button" data-axis="y">Y</button>
+              <button class="chip chip-axis" type="button" data-axis="z">Z</button>
             </div>
             <label class="slider-field">
               <span>Зсув</span>

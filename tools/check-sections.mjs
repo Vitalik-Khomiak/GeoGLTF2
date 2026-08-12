@@ -54,7 +54,9 @@ function extractConst(name) {
 
 const NAMES = ["computeSectionNormal", "stitchSectionLoops", "mergeCollinearLoopPoints", "measureSectionLoop", "describeSectionPolygon", "intersectTriangleWithPlane", "buildSectionFillGeometry", "needsSectionRetry", "pickBetterSectionFill"];
 const code = NAMES.map(extract).join("\n");
-const constCode = extractConst("SECTION_POLYGON_NAMES");
+// Константи, на які посилаються вирізані функції. Без них вирізана функція
+// падає з ReferenceError: вона виконується у власній області, а не в модулі.
+const constCode = [extractConst("SECTION_POLYGON_NAMES"), extractConst("DEGENERATE_AREA_RATIO")].join("\n");
 const factory = new Function("THREE", `${constCode}\n${code}
   return { ${NAMES.join(", ")} };`);
 const app = factory(THREE);
