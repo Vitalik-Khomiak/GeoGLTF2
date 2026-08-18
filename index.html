@@ -154,6 +154,7 @@
               <button id="helpClose" class="info-close" type="button" aria-label="Закрити">×</button>
               <p class="help-title">Як користуватися</p>
               <ul class="help-list">
+                <li>Кнопки внизу поділені на три групи: <b>Вигляд</b> — куди дивимось, <b>Показ</b> — як показано фігуру, <b>Аналіз</b> — чим її досліджуємо. Повзунки перерізу й розгортки з'являються під групою «Аналіз», коли вмикаєш відповідний інструмент.</li>
                 <li><b>Обертання</b> — перетягуй пальцем / лівою кнопкою. <b>Масштаб</b> — щипок / коліщатко. Два пальці — поворот навколо осі екрана. <b>Панорама</b> — права кнопка миші (на дотику вимкнена).</li>
                 <li><b>Спереду / Зверху / Збоку / Ізо</b> — швидкі види (клавіші f, t, s, i).</li>
                 <li><b>Переріз</b> — площина зі зсувом, нахилом і поворотом; показує форму перерізу, його площу S і периметр P (клавіша c).</li>
@@ -220,59 +221,73 @@
           </div>
         </div>
 
+        <!-- Док поділено на три групи за призначенням: куди дивимось, як показано
+             фігуру, чим її досліджуємо. Панелі перерізу й розгортки лежать
+             усередині групи «Аналіз» — біля перемикачів, які їх відкривають. -->
         <div class="viewer-dock">
-          <div class="dock-row dock-scroll">
-            <button id="viewFrontButton" class="chip" type="button">Спереду</button>
-            <button id="viewTopButton" class="chip" type="button">Зверху</button>
-            <button id="viewSideButton" class="chip" type="button">Збоку</button>
-            <button id="viewIsoButton" class="chip" type="button">Ізо</button>
-            <button id="quickResetButton" class="chip" type="button">Центр</button>
-            <button id="viewerResetButton" class="chip" type="button">Скинути</button>
-            <button id="nextModelButton" class="chip chip-accent" type="button">Наступна ›</button>
-            <button id="exportGgbButton" class="chip" type="button" title="Скопіювати вершини як команди GeoGebra">GeoGebra ⤴</button>
-          </div>
-
-          <div class="dock-row dock-scroll">
-            <label class="seg"><input id="mathModeToggle" type="checkbox" checked /><span>Geo-стиль</span></label>
-            <label class="seg"><input id="gridToggle" type="checkbox" checked /><span>Сітка</span></label>
-            <label class="seg"><input id="axesToggle" type="checkbox" checked /><span>Осі</span></label>
-            <label class="seg"><input id="wireframeToggle" type="checkbox" /><span>Каркас</span></label>
-            <label class="seg"><input id="labelsToggle" type="checkbox" /><span>Підписи</span></label>
-            <label class="seg"><input id="highlightToggle" type="checkbox" /><span>Підсвітка</span></label>
-            <label class="seg"><input id="measureToggle" type="checkbox" /><span>Лінійка</span></label>
-            <label class="seg"><input id="autoRotateToggle" type="checkbox" /><span>Обертання</span></label>
-            <label class="seg seg-accent"><input id="sectionToggle" type="checkbox" /><span>Переріз</span></label>
-          </div>
-
-          <div class="dock-row dock-section is-hidden" id="sectionControls">
-            <div class="section-axes" role="group" aria-label="Площина перерізу">
-              <button class="chip chip-axis" type="button" data-axis="x">X</button>
-              <button class="chip chip-axis is-active" type="button" data-axis="y">Y</button>
-              <button class="chip chip-axis" type="button" data-axis="z">Z</button>
+          <section class="dock-group" aria-label="Вигляд">
+            <p class="dock-group-label">Вигляд</p>
+            <div class="dock-row dock-scroll">
+              <button id="viewFrontButton" class="chip" type="button">Спереду</button>
+              <button id="viewTopButton" class="chip" type="button">Зверху</button>
+              <button id="viewSideButton" class="chip" type="button">Збоку</button>
+              <button id="viewIsoButton" class="chip" type="button">Ізо</button>
+              <button id="quickResetButton" class="chip" type="button">Центр</button>
+              <button id="nextModelButton" class="chip chip-accent" type="button">Наступна ›</button>
             </div>
-            <label class="slider-field">
-              <span>Зсув</span>
-              <input id="sectionPositionSlider" class="unfold-slider" type="range" min="-100" max="100" step="1" value="0" aria-label="Положення площини перерізу" />
-            </label>
-            <label class="slider-field">
-              <span>Нахил</span>
-              <input id="sectionTiltSlider" class="unfold-slider" type="range" min="-80" max="80" step="0.1" value="0" aria-label="Нахил площини перерізу" />
-            </label>
-            <label class="slider-field">
-              <span>Поворот</span>
-              <input id="sectionAzimuthSlider" class="unfold-slider" type="range" min="-180" max="180" step="1" value="0" aria-label="Поворот площини перерізу навколо осі" />
-            </label>
-            <label class="seg"><input id="sectionPlaneToggle" type="checkbox" checked /><span>Площина</span></label>
-            <span id="sectionInfo" class="section-info" aria-live="polite"></span>
-          </div>
+          </section>
 
-          <div class="dock-row dock-unfold">
-            <label class="seg seg-strong"><input id="unfoldModeToggle" type="checkbox" /><span>Розгортка</span></label>
-            <button id="unfoldPlayButton" class="chip chip-icon" type="button" aria-label="Відтворити розгортку">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            <input id="unfoldProgressSlider" class="unfold-slider" type="range" min="0" max="100" step="1" value="0" aria-label="Прогрес розгортки" />
-          </div>
+          <section class="dock-group" aria-label="Показ">
+            <p class="dock-group-label">Показ</p>
+            <div class="dock-row dock-scroll">
+              <label class="seg"><input id="mathModeToggle" type="checkbox" checked /><span>Geo-стиль</span></label>
+              <label class="seg"><input id="wireframeToggle" type="checkbox" /><span>Каркас</span></label>
+              <label class="seg"><input id="gridToggle" type="checkbox" checked /><span>Сітка</span></label>
+              <label class="seg"><input id="axesToggle" type="checkbox" checked /><span>Осі</span></label>
+              <label class="seg"><input id="autoRotateToggle" type="checkbox" /><span>Обертання</span></label>
+            </div>
+          </section>
+
+          <section class="dock-group" aria-label="Аналіз">
+            <p class="dock-group-label">Аналіз</p>
+            <div class="dock-row dock-scroll">
+              <label class="seg"><input id="labelsToggle" type="checkbox" /><span>Підписи</span></label>
+              <label class="seg"><input id="highlightToggle" type="checkbox" /><span>Підсвітка</span></label>
+              <label class="seg"><input id="measureToggle" type="checkbox" /><span>Лінійка</span></label>
+              <label class="seg seg-accent"><input id="sectionToggle" type="checkbox" /><span>Переріз</span></label>
+              <label class="seg seg-strong"><input id="unfoldModeToggle" type="checkbox" /><span>Розгортка</span></label>
+              <button id="exportGgbButton" class="chip" type="button" title="Скопіювати вершини як команди GeoGebra">GeoGebra ⤴</button>
+            </div>
+
+            <div class="dock-row dock-section is-hidden" id="sectionControls">
+              <div class="section-axes" role="group" aria-label="Площина перерізу">
+                <button class="chip chip-axis" type="button" data-axis="x">X</button>
+                <button class="chip chip-axis is-active" type="button" data-axis="y">Y</button>
+                <button class="chip chip-axis" type="button" data-axis="z">Z</button>
+              </div>
+              <label class="slider-field">
+                <span>Зсув</span>
+                <input id="sectionPositionSlider" class="unfold-slider" type="range" min="-100" max="100" step="1" value="0" aria-label="Положення площини перерізу" />
+              </label>
+              <label class="slider-field">
+                <span>Нахил</span>
+                <input id="sectionTiltSlider" class="unfold-slider" type="range" min="-80" max="80" step="0.1" value="0" aria-label="Нахил площини перерізу" />
+              </label>
+              <label class="slider-field">
+                <span>Поворот</span>
+                <input id="sectionAzimuthSlider" class="unfold-slider" type="range" min="-180" max="180" step="1" value="0" aria-label="Поворот площини перерізу навколо осі" />
+              </label>
+              <label class="seg"><input id="sectionPlaneToggle" type="checkbox" checked /><span>Площина</span></label>
+              <span id="sectionInfo" class="section-info" aria-live="polite"></span>
+            </div>
+
+            <!-- Кнопка відтворення підписується текстом з updateUnfoldUiState
+                 («Розгорнути» / «Пауза» / «Згорнути»), тому іконки тут немає. -->
+            <div class="dock-row dock-unfold is-hidden" id="unfoldControls">
+              <button id="unfoldPlayButton" class="chip" type="button" aria-label="Відтворити розгортку">Розгорнути</button>
+              <input id="unfoldProgressSlider" class="unfold-slider" type="range" min="0" max="100" step="1" value="0" aria-label="Прогрес розгортки" />
+            </div>
+          </section>
         </div>
       </main>
     </div>

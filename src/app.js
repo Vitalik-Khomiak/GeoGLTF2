@@ -28,9 +28,9 @@ const closeHintButton = document.querySelector("#closeHintButton");
 const viewGizmo = document.querySelector("#viewGizmo");
 const appShell = document.querySelector("#appShell");
 const backToLibraryButton = document.querySelector("#backToLibraryButton");
-const viewerResetButton = document.querySelector("#viewerResetButton");
 const quickResetButton = document.querySelector("#quickResetButton");
 const unfoldModeToggle = document.querySelector("#unfoldModeToggle");
+const unfoldControls = document.querySelector("#unfoldControls");
 const unfoldPlayButton = document.querySelector("#unfoldPlayButton");
 const unfoldProgressSlider = document.querySelector("#unfoldProgressSlider");
 const nextModelButton = document.querySelector("#nextModelButton");
@@ -69,7 +69,7 @@ const HINT_STORAGE_KEY = "geogltf-scene-hint-hidden";
 // Раніше тут був запит до api.github.com за датою останнього комміту.
 // Прибрано свідомо: застосунок працює на телефонах учнів і не має робити
 // жодних запитів за межі власного походження.
-const BUILD_DATE = "11.08.2026";
+const BUILD_DATE = "17.08.2026";
 const gizmoScene = new THREE.Scene();
 const gizmoCamera = new THREE.PerspectiveCamera(36, 1, 0.1, 10);
 const gizmoRoot = new THREE.Group();
@@ -383,7 +383,6 @@ function bindEvents() {
   }
 
   fileInput.addEventListener("change", onFileInputChange);
-  viewerResetButton.addEventListener("click", frameCurrentModel);
   quickResetButton.addEventListener("click", frameCurrentModel);
   unfoldModeToggle.addEventListener("change", () => {
     setUnfoldModeEnabled(unfoldModeToggle.checked);
@@ -1575,6 +1574,10 @@ function updateUnfoldUiState() {
   unfoldPlayButton.disabled = !canInteract;
   unfoldProgressSlider.disabled = !canInteract;
   unfoldProgressSlider.value = `${Math.round(unfoldState.progress * 100)}`;
+  // Панель відтворення розкривається лише разом із самим режимом — так само,
+  // як панель перерізу в setSectionEnabled. Поки розгортку не ввімкнено,
+  // повзунок і кнопка нічого не роблять, а місце в доці займають.
+  unfoldControls?.classList.toggle("is-hidden", !canInteract);
 
   if (!isSupported) {
     unfoldPlayButton.textContent = "Недоступно";

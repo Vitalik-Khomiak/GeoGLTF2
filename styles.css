@@ -498,6 +498,19 @@ h1, h2, h3, p, dl, dd { margin: 0; }
   box-shadow: 0 -8px 24px rgba(20, 35, 61, 0.08);
 }
 
+/* Група доку: підпис + рядок контролів. Підпис навмисно дрібний і приглушений —
+   він має розділяти смуги, а не змагатися за увагу з самими кнопками. */
+.dock-group { display: flex; flex-direction: column; gap: 4px; }
+.dock-group-label {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1.2;
+}
+
 .dock-row { display: flex; align-items: center; gap: 8px; }
 .dock-scroll {
   overflow-x: auto;
@@ -562,6 +575,16 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 }
 .seg input:focus-visible + span { outline: 2px solid var(--brand); outline-offset: 2px; }
 .seg:active span { transform: scale(0.94); }
+/* Недоступний перемикач мусить виглядати недоступним. «Розгортка» вимикається
+   для фігур, яких застосунок не вміє розгортати; без цього правила вона нічим
+   не відрізнялася від робочої, і натискання читалося як поломка. */
+.seg input:disabled + span {
+  opacity: 0.4;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.seg:has(input:disabled) { cursor: default; }
+.seg:has(input:disabled):active span { transform: none; }
 .seg-strong input:checked + span {
   background: var(--accent-soft);
   border-color: #b6e6d6;
@@ -622,7 +645,17 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 .dock-section .unfold-slider::-webkit-slider-thumb { background: var(--accent); }
 .dock-section .unfold-slider::-moz-range-thumb { background: var(--accent); }
 
-.dock-unfold { gap: 10px; }
+/* Панель розгортки поводиться як панель перерізу: з'являється лише тоді, коли
+   інструмент увімкнено. Тон брендовий синій, а не акцентний зелений перерізу —
+   дві панелі мають читатися як різні інструменти, а не як один довгий блок. */
+.dock-unfold {
+  gap: 10px;
+  padding: 10px;
+  background: var(--brand-soft);
+  border: 1px solid #c3cef6;
+  border-radius: var(--r-sm);
+}
+.dock-unfold:not(.is-hidden) { animation: card-in 0.2s ease; }
 .unfold-slider {
   flex: 1;
   min-width: 60px;
