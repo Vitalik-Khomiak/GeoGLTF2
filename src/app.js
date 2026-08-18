@@ -69,7 +69,7 @@ const HINT_STORAGE_KEY = "geogltf-scene-hint-hidden";
 // Раніше тут був запит до api.github.com за датою останнього комміту.
 // Прибрано свідомо: застосунок працює на телефонах учнів і не має робити
 // жодних запитів за межі власного походження.
-const BUILD_DATE = "17.08.2026";
+const BUILD_DATE = "18.08.2026";
 const gizmoScene = new THREE.Scene();
 const gizmoCamera = new THREE.PerspectiveCamera(36, 1, 0.1, 10);
 const gizmoRoot = new THREE.Group();
