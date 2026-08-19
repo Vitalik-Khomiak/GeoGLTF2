@@ -69,9 +69,9 @@ python -m http.server 8000
 додайте до адреси параметр `?model=`:
 
 ```
-https://vitalik-khomiak.github.io/GeoGLTF/?model=cube
-https://vitalik-khomiak.github.io/GeoGLTF/?model=tetrahedron
-https://vitalik-khomiak.github.io/GeoGLTF/?model=cones_similar
+https://vitalik-khomiak.github.io/GeoGLTF2/?model=cube
+https://vitalik-khomiak.github.io/GeoGLTF2/?model=tetrahedron
+https://vitalik-khomiak.github.io/GeoGLTF2/?model=cones_similar
 ```
 
 Підходить і назва моделі з `library.json`, і імʼя файлу. Кирилична назва теж
@@ -86,7 +86,7 @@ https://vitalik-khomiak.github.io/GeoGLTF/?model=cones_similar
 Параметр `?sec=` відтворює положення січної площини: вісь, зсув, нахил, поворот.
 
 ```
-https://vitalik-khomiak.github.io/GeoGLTF/?model=cube&sec=y,0,54.7,45
+https://vitalik-khomiak.github.io/GeoGLTF2/?model=cube&sec=y,0,54.7,45
 ```
 
 Це приклад із правильним шестикутником у перерізі куба. Кути дробові, тому
@@ -105,7 +105,7 @@ https://vitalik-khomiak.github.io/GeoGLTF/?model=cube&sec=y,0,54.7,45
 недосяжна, щоб числа й розгортка не підказували відповідь.
 
 ```
-https://vitalik-khomiak.github.io/GeoGLTF/?model=cube&predict=1
+https://vitalik-khomiak.github.io/GeoGLTF2/?model=cube&predict=1
 ```
 
 Працює рівно `?predict=1`. Написання `?predict` або `?predict=true` мовчки
